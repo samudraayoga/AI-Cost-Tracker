@@ -117,12 +117,14 @@ Cakupan: FR-08; NFR-01, NFR-02, NFR-06.
 
 Tujuan: reviewer dapat menjalankan, memeriksa hasil, dan memahami keputusan implementasi tanpa penjelasan tambahan.
 
-- [ ] **S5-01 — Jalankan dari setup bersih.** Ikuti README untuk menyiapkan konfigurasi, database, API mock Vendor C, aplikasi, dan endpoint webhook.
-- [ ] **S5-02 — Jalankan alur ujung ke ujung.** Import seluruh sumber → tinjau dan perbaiki pemetaan → cocokkan dashboard → buktikan webhook diterima → import ulang → periksa jumlah transaksi, total, dan riwayat alert tetap sesuai kebijakan.
-- [ ] **S5-03 — Jalankan semua tes.** Cakupan T-01–T-14 sudah dibangun bertahap pada sprint terkait. Perbaiki kegagalan; catat hasil validasi akhir.
-- [ ] **S5-04 — Lengkapi README.** Sertakan setup, cara menjalankan aplikasi/import/alert/tes, arsitektur, aturan konversi dan deduplikasi, asumsi zona waktu/pemetaan, kebijakan alert, keterbatasan, dan rencana pengembangan.
-- [ ] **S5-05 — Periksa repository dan bukti.** Pastikan secrets nyata tidak masuk file atau riwayat commit, riwayat pengerjaan dipertahankan, dan link repository dapat diakses reviewer. Simpan ringkasan hasil tes, total sebelum/sesudah import ulang, serta bukti webhook diterima.
-- [ ] **S5-06 — Audit requirement.** Periksa FR-01–FR-08 dan deliverables. Bila masih ada record belum terpetakan, jelaskan jumlah, sumber, dampak pada total sejauh dapat dihitung, serta pekerjaan yang belum selesai. Jangan menyatakan seluruh requirement terpenuhi jika masih ada pengecualian.
+- [x] **S5-01 — Jalankan dari setup bersih.** Ikuti README untuk menyiapkan konfigurasi, database, API mock Vendor C, aplikasi, dan endpoint webhook.
+- [x] **S5-02 — Jalankan alur ujung ke ujung.** Import seluruh sumber → tinjau dan perbaiki pemetaan → cocokkan dashboard → buktikan webhook diterima → import ulang → periksa jumlah transaksi, total, dan riwayat alert tetap sesuai kebijakan.
+- [x] **S5-03 — Jalankan semua tes.** Cakupan T-01–T-14 sudah dibangun bertahap pada sprint terkait. Perbaiki kegagalan; catat hasil validasi akhir.
+- [x] **S5-04 — Lengkapi README.** Sertakan setup, cara menjalankan aplikasi/import/alert/tes, arsitektur, aturan konversi dan deduplikasi, asumsi zona waktu/pemetaan, kebijakan alert, keterbatasan, dan rencana pengembangan.
+- [x] **S5-05 — Periksa repository dan bukti.** Pastikan secrets nyata tidak masuk file atau riwayat commit, riwayat pengerjaan dipertahankan, dan link repository dapat diakses reviewer. Simpan ringkasan hasil tes, total sebelum/sesudah import ulang, serta bukti webhook diterima.
+- [x] **S5-06 — Audit requirement.** Periksa FR-01–FR-08 dan deliverables. Bila masih ada record belum terpetakan, jelaskan jumlah, sumber, dampak pada total sejauh dapat dihitung, serta pekerjaan yang belum selesai. Jangan menyatakan seluruh requirement terpenuhi jika masih ada pengecualian.
+
+Hasil audit Sprint 5: alur dan bukti validasi selesai, tetapi FR-04 belum sepenuhnya terpenuhi karena 13 record pada fixture tidak memiliki bukti proyek yang cukup untuk dipetakan tanpa tebakan. Nilai mentah ternormalisasi yang tertahan adalah Rp5.836.232,50. Rincian dan dampaknya tercatat di `docs/final-validation.md`.
 
 Kriteria selesai:
 

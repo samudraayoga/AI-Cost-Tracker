@@ -1,6 +1,8 @@
 # AI Production Cost Tracker
 
-Aplikasi internal untuk menyatukan biaya produksi, memantau budget proyek, dan mengirim peringatan budget. **Implementasi saat ini menyelesaikan Sprint 4:** fondasi data, import empat sumber, deduplikasi, refund, agregasi presisi, dashboard operasional, dan notifikasi budget melalui webhook.
+Aplikasi internal untuk menyatukan biaya produksi, memantau budget proyek, dan mengirim peringatan budget. **Sprint 1–5 telah dijalankan:** fondasi data, import empat sumber, deduplikasi, refund, agregasi presisi, dashboard operasional, webhook budget, dan validasi akhir.
+
+Repository: [github.com/samudraayoga/AI-Cost-Tracker](https://github.com/samudraayoga/AI-Cost-Tracker). Audit akhir menemukan satu pengecualian terbuka terhadap FR-04: 13 record fixture belum dapat dihubungkan ke proyek tanpa keputusan bisnis tambahan. Dashboard dan alert hanya menghitung transaksi yang sudah terpetakan dan menyatakan kondisi ini secara eksplisit.
 
 ## Menjalankan aplikasi dan import
 
@@ -24,7 +26,7 @@ npm run db:status
 
 Pada workspace pengerjaan, salinan data asli sudah tersedia di `data/input`. Folder tersebut diabaikan Git; file asli di Downloads tidak diubah. Perintah `db:init` hanya memuat `projects.csv` dan `rates.json`. Direktori input bisa diganti lewat `DATA_DIR` atau `--data-dir`. Dataset mentah dan database lokal tidak ikut commit.
 
-Jalankan mock Vendor C dari paket tugas pada terminal terpisah:
+Jalankan mock Vendor C dari direktori paket tugas asli yang sudah diekstrak, pada terminal terpisah:
 
 ```bash
 cd AI_Cost_Tracker_Take_Home/vendor-c-mock
@@ -187,7 +189,7 @@ Target alias harus ada pada master. Bila label cocok dengan lebih dari satu proy
 
 Untuk memperbaiki record tertahan: periksa `npm run review:list`, verifikasi proyek sebenarnya, lalu tambahkan alias ke array konfigurasi tanpa menghapus alias yang masih valid. Jalankan `npm run review:retry` untuk Vendor A/B/C atau ulangi `npm run import -- --source manual` untuk data manual, karena sumber manual harus melewati aturan invoice dan `Ref` lagi. Record yang belum jelas tetap tertahan. Blank label memerlukan koreksi sumber/record secara eksplisit; jangan membuat alias kosong.
 
-## Aturan transaksi, dashboard, dan sprint lanjutan
+## Aturan transaksi, dashboard, dan alert
 
 Kontrak `TransactionDraft` di `src/db/records.ts` membawa sumber, ID stabil, file/baris, label proyek, vendor, nominal, timestamp, referensi, dan referensi refund. `stageRecord` menyimpan payload asli, menormalisasi, memetakan, dan menyimpan transaksi jika valid. Input yang belum valid disimpan dengan alasan tinjauan, terpisah dari transaksi efektif.
 
@@ -211,10 +213,6 @@ Perilaku yang sudah tersedia:
 - Payload webhook memuat proyek, pengeluaran, budget, persentase, mata uang, kebijakan, waktu evaluasi, dan jumlah record yang masih perlu ditinjau.
 - Respons HTTP 2xx baru dicatat sebagai sukses. Kegagalan HTTP, jaringan, atau timeout tersimpan dan bisa dicoba lagi. Satu sukses per proyek/kebijakan mencegah pengiriman berulang.
 
-Perilaku yang **belum diimplementasikan**, dengan keputusan awal untuk sprint berikutnya:
-
-1. **Sprint 5:** validasi gabungan, audit requirement, dan penyerahan repository.
-
 Aturan awal minggu, perlakuan jam manual, kebijakan alert, batas nilai parser, pilihan schema dan penanganan record tertahan adalah **keputusan implementasi**, bukan syarat tambahan resmi dari brief.
 
 ## Verifikasi dan keterbatasan
@@ -230,6 +228,10 @@ npm run db:status
 
 Menjalankan `db:status` dan `alerts:status` sebagai proses baru membuktikan pembacaan database dari disk. Tes juga menutup dan membuka kembali koneksi ke file SQLite sementara. Rincian validasi ada di `docs/sprint-1.md` sampai `docs/sprint-4.md`.
 
-Belum ada autentikasi atau deployment publik. Target saat ini adalah review lokal. Dataset asli masih memiliki 13 record belum terpetakan; dashboard dan payload alert menyatakan kondisi tersebut, dan tersedianya daftar tinjauan tidak membuat target pemetaan seluruh record otomatis terpenuhi. Untuk dataset dengan budget tetap ini, perubahan budget setelah alert sukses tidak mengirim ulang; kebijakan versi berikutnya perlu memakai versi budget bila budget dapat berubah.
+Validasi akhir dari database kosong menghasilkan 351 transaksi efektif, total Rp159.994.487,50, 19 relasi deduplikasi, 13 review, dan tiga webhook sukses. Import kedua menerima nol transaksi baru, mempertahankan total, dan tidak mengirim webhook ulang. `npm run check` meluluskan 206 tes pada 10 file; audit dependency melaporkan nol vulnerability. Lihat [laporan validasi akhir](docs/final-validation.md) untuk perintah, rekonsiliasi, audit FR/NFR, dan bukti repository.
+
+Dataset asli masih memiliki 13 record belum terpetakan dengan nilai mentah ternormalisasi Rp5.836.232,50. Nilai tersebut adalah potensi biaya yang tertahan, bukan angka yang aman ditambahkan ke proyek tertentu: sebagian berlabel `test`/`sandbox`, sebagian `misc`/pitch baru, dan tiga label kosong. Pemetaan memerlukan konfirmasi pemilik data. Karena itu FR-04 belum sepenuhnya terpenuhi dan total dashboard belum boleh dianggap final.
+
+Belum ada autentikasi, deployment publik, penjadwalan otomatis, UI koreksi mapping, atau filter periode/proyek; fitur tersebut tidak diwajibkan brief awal. Untuk dataset dengan budget tetap ini, perubahan budget setelah alert sukses juga tidak mengirim ulang. Versi berikutnya sebaiknya menambahkan alur koreksi review dengan audit trail, versi budget pada identitas alert, scheduler import, autentikasi, serta filter dashboard.
 
 Lihat [rencana sprint](AI_Production_Cost_Tracker_Sprint_Plan.md) untuk keseluruhan backlog.
