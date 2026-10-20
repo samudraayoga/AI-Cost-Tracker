@@ -19,7 +19,8 @@ export function createApp(db: Database, webDirectory?: string) {
       projectCount: db.prepare('SELECT count(*) AS count FROM projects').get()?.count,
       transactionCount: db.prepare('SELECT count(*) AS count FROM transactions').get()?.count,
       reviewCount: db.prepare("SELECT count(*) AS count FROM raw_records WHERE status = 'needs_review'").get()?.count,
-      costImportAvailable: false,
+      deduplicatedCount: db.prepare('SELECT count(*) AS count FROM record_deduplications').get()?.count,
+      costImportAvailable: true,
     });
   });
   app.use('/api', (_request, response) => { response.status(404).json({ error: 'Endpoint tidak ditemukan.' }); });

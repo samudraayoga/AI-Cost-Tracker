@@ -44,14 +44,14 @@ Tujuan: menghasilkan kumpulan transaksi yang lengkap, dapat ditelusuri, dan tida
 
 Urutan backlog di dalam sprint: importer file → API → deduplikasi lintas sumber → pengujian gabungan.
 
-- [ ] **S2-01 — Import Vendor A dan B.** Baca kedua CSV melalui aturan normalisasi dan pemetaan Sprint 1. Simpan identitas transaksi sumber, termasuk `line_id` Vendor B.
-- [ ] **S2-02 — Import spreadsheet manual.** Baca XLSX dan abaikan judul, header, baris kosong, serta `TOTAL`. Simpan invoice, vendor, dan `Ref` yang diperlukan untuk pencocokan.
-- [ ] **S2-03 — Integrasikan API Vendor C.** Gunakan HTTP `GET /v1/usage` dengan Bearer API key dari environment. Ambil seluruh halaman mulai halaman 1 sampai selesai; jangan membaca backing file API secara langsung.
-- [ ] **S2-04 — Tangani kegagalan API.** Hormati `Retry-After` pada 429, gunakan timeout dan retry terbatas untuk 5xx, serta tampilkan kesalahan kredensial/parameter dengan jelas. Laporkan kegagalan setelah retry habis.
-- [ ] **S2-05 — Terapkan deduplikasi.** Tangani `line_id` identik dengan isi sama, invoice manual berulang meskipun format berbeda, dan `Ref` manual yang cocok dengan Vendor A. Gunakan identitas stabil; nominal sama saja tidak cukup untuk menghapus transaksi. Kasus ambigu masuk tinjauan.
-- [ ] **S2-06 — Tangani refund.** Simpan refund sebagai transaksi negatif, tautkan ke transaksi asal bila tersedia, dan pastikan pengurangannya hanya terjadi sekali.
-- [ ] **S2-07 — Buat perintah import dan laporan hasil.** Sediakan perintah yang terdokumentasi, status per sumber, jumlah record dibaca/diterima/duplikat/perlu ditinjau, dan cara memproses ulang record setelah koreksi alias. Import yang gagal sebagian tidak diberi status sukses lengkap.
-- [ ] **S2-08 — Tambahkan tes import.** Cakupan T-05–T-10, termasuk menjalankan ulang import setelah kegagalan parsial.
+- [x] **S2-01 — Import Vendor A dan B.** Baca kedua CSV melalui aturan normalisasi dan pemetaan Sprint 1. Simpan identitas transaksi sumber, termasuk `line_id` Vendor B.
+- [x] **S2-02 — Import spreadsheet manual.** Baca XLSX dan abaikan judul, header, baris kosong, serta `TOTAL`. Simpan invoice, vendor, dan `Ref` yang diperlukan untuk pencocokan.
+- [x] **S2-03 — Integrasikan API Vendor C.** Gunakan HTTP `GET /v1/usage` dengan Bearer API key dari environment. Ambil seluruh halaman mulai halaman 1 sampai selesai; jangan membaca backing file API secara langsung.
+- [x] **S2-04 — Tangani kegagalan API.** Hormati `Retry-After` pada 429, gunakan timeout dan retry terbatas untuk 5xx, serta tampilkan kesalahan kredensial/parameter dengan jelas. Laporkan kegagalan setelah retry habis.
+- [x] **S2-05 — Terapkan deduplikasi.** Tangani `line_id` identik dengan isi sama, invoice manual berulang meskipun format berbeda, dan `Ref` manual yang cocok dengan Vendor A. Gunakan identitas stabil; nominal sama saja tidak cukup untuk menghapus transaksi. Kasus ambigu masuk tinjauan.
+- [x] **S2-06 — Tangani refund.** Simpan refund sebagai transaksi negatif, tautkan ke transaksi asal bila tersedia, dan pastikan pengurangannya hanya terjadi sekali.
+- [x] **S2-07 — Buat perintah import dan laporan hasil.** Sediakan perintah yang terdokumentasi, status per sumber, jumlah record dibaca/diterima/duplikat/perlu ditinjau, dan cara memproses ulang record setelah koreksi alias. Import yang gagal sebagian tidak diberi status sukses lengkap.
+- [x] **S2-08 — Tambahkan tes import.** Cakupan T-05–T-10, termasuk menjalankan ulang import setelah kegagalan parsial.
 
 Kriteria selesai:
 

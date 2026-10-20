@@ -88,21 +88,23 @@ describe('transaction staging and review lifecycle', () => {
   it('preserves non-finite raw values through review and repeated processing', () => {
     expect(stageRecord(db, draft({ amount: Number.NaN }), resolver(), getRates(db)).reason).toBe('invalid_amount');
     expect(JSON.parse(String(listReviewRecords(db)[0]?.payload))).toMatchObject({ amount: { type: 'number', value: 'NaN' } });
-    expect(retryReviewRecords(db, resolver(), getRates(db))[0]?.reason).toBe('invalid_amount');
+    expect(retryReviewRecords(db, resolver(), getRates(db))).toEqual([]);
+    expect(listReviewRecords(db)[0]?.reason).toBe('invalid_amount');
     expect(count()).toBe(0);
   });
 
   it('does not reinterpret malformed source objects as valid dates during a retry', () => {
     const timestamp = { kind: 'excel_date', value: '2026-09-01T00:00:00Z' } as unknown as Date;
     expect(stageRecord(db, draft({ timestamp }), resolver(), getRates(db)).reason).toBe('invalid_timestamp');
-    expect(retryReviewRecords(db, resolver(), getRates(db))[0]?.reason).toBe('invalid_timestamp');
+    expect(retryReviewRecords(db, resolver(), getRates(db))).toEqual([]);
+    expect(listReviewRecords(db)[0]?.reason).toBe('invalid_timestamp');
     expect(count()).toBe(0);
   });
 
   it('retains spreadsheet Date type when reprocessing a pending manual record', () => {
     stageRecord(db, draft({
       source: 'manual', sourceFile: 'manual_ops.xlsx', projectLabel: 'new-manual-label',
-      amount: 'Rp 1.850.000', timestamp: new Date('2026-09-01T00:00:00Z'),
+      vendor: 'Stock Music', amount: 'Rp 1.850.000', timestamp: new Date('2026-09-01T00:00:00Z'),
     }), resolver(), getRates(db));
     const corrected = createProjectResolver(listProjects(db), [{ alias: 'new-manual-label', projectCode: 'KMD-02' }]);
     retryReviewRecords(db, corrected, getRates(db));

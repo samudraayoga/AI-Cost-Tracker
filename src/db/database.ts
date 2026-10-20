@@ -69,6 +69,19 @@ const migrations = [{ version: 1, sql: `
   ) STRICT;
   CREATE INDEX transactions_project_date ON transactions(project_code, date_wib);
   CREATE INDEX raw_records_review ON raw_records(status);
+` }, { version: 2, sql: `
+  CREATE TABLE record_deduplications (
+    raw_record_id INTEGER PRIMARY KEY REFERENCES raw_records(id),
+    canonical_transaction_id INTEGER NOT NULL REFERENCES transactions(id),
+    reason TEXT NOT NULL CHECK(reason IN (
+      'same_source_id',
+      'manual_invoice',
+      'manual_vendor_a_ref',
+      'manual_vendor_a_match'
+    )),
+    created_at TEXT NOT NULL
+  ) STRICT;
+  CREATE INDEX record_deduplications_canonical ON record_deduplications(canonical_transaction_id);
 ` }];
 
 export function inTransaction<T>(db: Database, work: () => T): T {
