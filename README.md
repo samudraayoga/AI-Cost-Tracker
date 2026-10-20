@@ -1,6 +1,6 @@
 # AI Production Cost Tracker
 
-Aplikasi internal untuk menyatukan biaya produksi, memantau budget proyek, dan mengirim peringatan budget. **Implementasi saat ini menyelesaikan Sprint 3:** fondasi data, import empat sumber, deduplikasi, refund, agregasi presisi, dan dashboard operasional. Pengiriman webhook dikerjakan pada sprint berikutnya.
+Aplikasi internal untuk menyatukan biaya produksi, memantau budget proyek, dan mengirim peringatan budget. **Implementasi saat ini menyelesaikan Sprint 4:** fondasi data, import empat sumber, deduplikasi, refund, agregasi presisi, dashboard operasional, dan notifikasi budget melalui webhook.
 
 ## Menjalankan aplikasi dan import
 
@@ -31,22 +31,35 @@ cd AI_Cost_Tracker_Take_Home/vendor-c-mock
 VC_FAIL_RATE=0 node server.js
 ```
 
-Untuk menguji retry 429/5xx sebagaimana perilaku default fixture, hilangkan `VC_FAIL_RATE=0`. Isi API key yang diberikan dokumentasi mock hanya pada environment lokal, lalu import seluruh sumber:
+Untuk menguji retry 429/5xx sebagaimana perilaku default fixture, hilangkan `VC_FAIL_RATE=0`. Isi API key yang diberikan dokumentasi mock hanya pada environment lokal. Untuk membuktikan alert secara lokal, jalankan mock webhook pada terminal lain:
 
 ```bash
-VENDOR_C_API_KEY=<api-key-dari-docs-mock> npm run import
-npm run db:status
-npm run review:list
+npm run webhook:mock
 ```
 
-Importer memproses urutan Vendor A → Vendor B → Vendor C → manual agar `Ref` manual dapat dicocokkan ke Vendor A. Menjalankan perintah yang sama kembali aman: transaksi efektif dan total tidak bertambah. Untuk mengulang satu sumber setelah koreksi alias atau kegagalan:
+Mock menerima `POST /webhook` pada port `4020` dan menyimpan request ke `data/runtime/webhook-received.ndjson`. Kemudian import seluruh sumber dan arahkan alert ke mock:
+
+```bash
+VENDOR_C_API_KEY=<api-key-dari-docs-mock> \
+WEBHOOK_URL=http://127.0.0.1:4020/webhook \
+npm run import
+npm run db:status
+npm run review:list
+npm run alerts:status
+```
+
+Importer memproses urutan Vendor A → Vendor B → Vendor C → manual agar `Ref` manual dapat dicocokkan ke Vendor A. Alert dievaluasi setelah run lengkap keempat sumber berhasil. Menjalankan perintah yang sama kembali aman: transaksi efektif, total, dan jumlah alert sukses tidak bertambah. Untuk mengulang satu sumber setelah koreksi alias atau kegagalan:
 
 ```bash
 VENDOR_C_API_KEY=<api-key> npm run import -- --source vendor_c
 npm run import -- --source manual
 ```
 
-Nilai `status: complete` pada laporan berarti seluruh sumber yang dipilih selesai dibaca; record `review` tetap merupakan pengecualian yang harus diselesaikan. Bila salah satu sumber gagal, hasil keseluruhan `incomplete`, exit code nonzero, dan sumber lain tetap dilaporkan terpisah.
+Nilai `status: complete` pada laporan berarti seluruh sumber yang dipilih selesai dibaca; record `review` tetap merupakan pengecualian yang harus diselesaikan. Bila salah satu sumber gagal, hasil keseluruhan `incomplete`, exit code nonzero, dan alert tidak dievaluasi. Import satu sumber juga tidak mengevaluasi alert. Bila webhook gagal, status menjadi `alert_failed` dan proses keluar nonzero. Perbaiki endpoint lalu coba lagi tanpa mengimpor ulang:
+
+```bash
+WEBHOOK_URL=http://127.0.0.1:4020/webhook npm run alerts:send
+```
 
 Build produksi lokal:
 
@@ -67,6 +80,9 @@ Buka http://127.0.0.1:3001 untuk halaman hasil build dan API dari satu server. J
 | `npm run import` | Import empat sumber dan cetak hitungan read/accepted/duplicate/review per sumber |
 | `npm run review:list` | Lihat record yang tertahan beserta sumber, nilai asli, dan alasan |
 | `npm run review:retry` | Proses ulang pemetaan nonmanual yang tertahan memakai alias terbaru |
+| `npm run webhook:mock` | Jalankan penerima webhook lokal dan simpan request sebagai NDJSON |
+| `npm run alerts:send` | Evaluasi budget dan kirim alert yang belum pernah berhasil |
+| `npm run alerts:status` | Lihat seluruh percobaan, status HTTP, dan error pengiriman |
 | `npm test` | Tes domain dan integrasi SQLite |
 | `npm run typecheck` | Pemeriksaan TypeScript strict |
 | `npm run check` | Seluruh tes, typecheck, dan build frontend/backend |
@@ -82,7 +98,10 @@ Buka http://127.0.0.1:3001 untuk halaman hasil build dan API dari satu server. J
 | `VENDOR_C_API_KEY` | Kosong dalam contoh; wajib diisi melalui environment untuk import Vendor C |
 | `VENDOR_C_TIMEOUT_MS` | `10000`; timeout tiap request HTTP |
 | `VENDOR_C_MAX_RETRIES` | `4`; retry tambahan untuk 429, 5xx, timeout, atau gangguan jaringan |
-| `WEBHOOK_URL` | Kosong dalam contoh; dipakai Sprint 4 |
+| `WEBHOOK_URL` | Kosong; URL HTTP/HTTPS tujuan alert, misalnya `http://127.0.0.1:4020/webhook` |
+| `WEBHOOK_TIMEOUT_MS` | `10000`; timeout satu request webhook |
+| `WEBHOOK_MOCK_PORT` | `4020`; port untuk perintah mock lokal |
+| `WEBHOOK_MOCK_LOG` | `data/runtime/webhook-received.ndjson`; bukti request mock lokal |
 
 `.env` dimuat tanpa menggantikan environment yang sudah diberikan shell. Secrets tidak boleh disimpan dalam source, fixture, atau commit. Jangan gunakan prefix `VITE_` untuk secrets karena variabel tersebut dapat terekspos ke browser. Tidak ada API key atau URL webhook nyata dalam repository.
 
@@ -90,9 +109,10 @@ Buka http://127.0.0.1:3001 untuk halaman hasil build dan API dari satu server. J
 
 ```text
 src/
+  alerts/       Evaluasi ambang, payload, pengiriman, deduplikasi, dan riwayat alert
   domain/       Konversi uang, waktu, dan pemetaan proyek; tidak bergantung HTTP/DB
   db/           Migrasi SQLite, master data, transaksi, review, dan agregasi dashboard
-  cli/          Inisialisasi, status, dan pemrosesan ulang record tertahan
+  cli/          Inisialisasi, import, review, alert, status, dan mock webhook
   server/       Express: health, master proyek, status, dan dashboard
   web/          React: dashboard proyek, vendor, tren mingguan, dan kondisi data
 config/         Alias proyek yang dapat ditinjau dan diedit
@@ -112,6 +132,7 @@ Tabel inti:
 - `raw_records`: identitas sumber, lokasi baris, payload asli bertipe, hash, status dan alasan tinjauan.
 - `transactions`: hasil normalisasi yang sudah terhubung proyek, kurs yang dipakai, UTC/WIB, minggu, referensi dan refund.
 - `record_deduplications`: raw record yang tidak dihitung lagi, transaksi kanonisnya, dan alasan deduplikasi.
+- `budget_alert_attempts`: snapshot payload, angka, waktu, status HTTP, dan error setiap percobaan alert.
 - `schema_migrations`: versi skema yang sudah diterapkan.
 
 Foreign key aktif. Satu identitas `(source, source_record_id)` memiliki maksimal satu raw record dan satu transaksi efektif. Pemuatan master dan penerimaan record memakai transaksi SQLite. Database dan master tetap tersedia setelah proses dimulai ulang.
@@ -186,17 +207,19 @@ Perilaku yang sudah tersedia:
 - Ringkasan proyek, vendor, dan minggu berasal dari seluruh baris `transactions` efektif yang sama. Refund tetap negatif dan masuk pada minggu tanggal refund.
 - Minggu berjalan Senin–Minggu menurut WIB. Semua proyek master tetap ditampilkan, termasuk yang belum memiliki transaksi; persentase overbudget tidak dibatasi ke 100%.
 - Status kelengkapan memakai hasil import terbaru setiap sumber. Dashboard memberi peringatan bila suatu sumber belum sukses atau masih ada record yang perlu ditinjau.
+- Alert memakai pengeluaran bersih yang sama dengan dashboard dan hanya memenuhi syarat bila `pengeluaran > 80% × budget`; nilai tepat 80% tidak memicu.
+- Payload webhook memuat proyek, pengeluaran, budget, persentase, mata uang, kebijakan, waktu evaluasi, dan jumlah record yang masih perlu ditinjau.
+- Respons HTTP 2xx baru dicatat sebagai sukses. Kegagalan HTTP, jaringan, atau timeout tersimpan dan bisa dicoba lagi. Satu sukses per proyek/kebijakan mencegah pengiriman berulang.
 
 Perilaku yang **belum diimplementasikan**, dengan keputusan awal untuk sprint berikutnya:
 
-1. **Sprint 4:** evaluasi setelah import semua sumber berhasil, ambang `pengeluaran > 0,8 × budget`. Tepat 80% belum memicu. Import pertama yang sudah di atas ambang memenuhi syarat. Satu alert berhasil per proyek untuk budget tetap; sukses dicatat setelah konfirmasi endpoint. Refund tidak menghapus riwayat. Pengiriman gagal boleh dicoba ulang.
-2. **Sprint 5:** validasi gabungan, bukti webhook, rekonsiliasi, dan penyerahan repository.
+1. **Sprint 5:** validasi gabungan, audit requirement, dan penyerahan repository.
 
 Aturan awal minggu, perlakuan jam manual, kebijakan alert, batas nilai parser, pilihan schema dan penanganan record tertahan adalah **keputusan implementasi**, bukan syarat tambahan resmi dari brief.
 
 ## Verifikasi dan keterbatasan
 
-Tes mencakup T-01–T-11: konversi, nominal manual, WIB, alias/ambigu, import ulang, duplikat, transaksi bernominal sama, refund, pagination 103 record, 429/5xx/401, persistensi, rollback, raw provenance, retry, serta konsistensi total proyek/vendor/mingguan.
+Tes mencakup T-01–T-14: konversi, nominal manual, WIB, alias/ambigu, import ulang, duplikat, transaksi bernominal sama, refund, pagination 103 record, 429/5xx/401, persistensi, rollback, raw provenance, konsistensi agregasi, batas 80%, pencegahan alert berulang, dan retry webhook gagal.
 
 ```bash
 npm run check
@@ -205,8 +228,8 @@ npm run db:init -- --data-dir data/master
 npm run db:status
 ```
 
-Menjalankan `db:status` sebagai proses baru membuktikan pembacaan database dari disk; tes juga menutup dan membuka kembali koneksi ke file SQLite sementara. Rincian validasi ada di `docs/sprint-1.md`, `docs/sprint-2.md`, dan `docs/sprint-3.md`.
+Menjalankan `db:status` dan `alerts:status` sebagai proses baru membuktikan pembacaan database dari disk. Tes juga menutup dan membuka kembali koneksi ke file SQLite sementara. Rincian validasi ada di `docs/sprint-1.md` sampai `docs/sprint-4.md`.
 
-Belum ada autentikasi atau deployment publik. Target saat ini adalah review lokal. Pengiriman webhook belum tersedia. Dataset asli masih memiliki 13 record belum terpetakan; dashboard menyatakan bahwa record tersebut belum masuk total, dan tersedianya daftar tinjauan tidak membuat target pemetaan seluruh record otomatis terpenuhi.
+Belum ada autentikasi atau deployment publik. Target saat ini adalah review lokal. Dataset asli masih memiliki 13 record belum terpetakan; dashboard dan payload alert menyatakan kondisi tersebut, dan tersedianya daftar tinjauan tidak membuat target pemetaan seluruh record otomatis terpenuhi. Untuk dataset dengan budget tetap ini, perubahan budget setelah alert sukses tidak mengirim ulang; kebijakan versi berikutnya perlu memakai versi budget bila budget dapat berubah.
 
 Lihat [rencana sprint](AI_Production_Cost_Tracker_Sprint_Plan.md) untuk keseluruhan backlog.

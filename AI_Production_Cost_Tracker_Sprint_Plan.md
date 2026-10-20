@@ -90,11 +90,11 @@ Cakupan: FR-06, FR-07; NFR-02, NFR-04.
 
 Tujuan: proyek yang melewati ambang budget memicu notifikasi yang dapat dibuktikan penerimaannya dan aman dicoba ulang.
 
-- [ ] **S4-01 — Implementasikan evaluasi ambang.** Gunakan total bersih yang sama dengan dashboard. Jalankan evaluasi sesudah import lengkap berhasil.
-- [ ] **S4-02 — Buat pengiriman webhook.** URL tujuan melalui konfigurasi environment. Payload mencantumkan proyek, pengeluaran, budget, dan persentase pemakaian. Endpoint mock lokal cukup untuk pembuktian take-home.
-- [ ] **S4-03 — Simpan riwayat pengiriman.** Catat status, waktu, dan hasil/kesalahan. Status berhasil hanya disimpan setelah endpoint mengonfirmasi penerimaan.
-- [ ] **S4-04 — Cegah alert berulang dan dukung retry.** Import ulang tidak mengirim alert yang sama setelah sukses; pengiriman gagal tetap dapat dicoba ulang.
-- [ ] **S4-05 — Tambahkan tes dan bukti penerimaan.** Cakupan T-12–T-14. Dokumentasikan cara menjalankan mock, memicu alert, dan melihat request yang diterima.
+- [x] **S4-01 — Implementasikan evaluasi ambang.** Gunakan total bersih yang sama dengan dashboard. Jalankan evaluasi sesudah import lengkap berhasil.
+- [x] **S4-02 — Buat pengiriman webhook.** URL tujuan melalui konfigurasi environment. Payload mencantumkan proyek, pengeluaran, budget, dan persentase pemakaian. Endpoint mock lokal cukup untuk pembuktian take-home.
+- [x] **S4-03 — Simpan riwayat pengiriman.** Catat status, waktu, dan hasil/kesalahan. Status berhasil hanya disimpan setelah endpoint mengonfirmasi penerimaan.
+- [x] **S4-04 — Cegah alert berulang dan dukung retry.** Import ulang tidak mengirim alert yang sama setelah sukses; pengiriman gagal tetap dapat dicoba ulang.
+- [x] **S4-05 — Tambahkan tes dan bukti penerimaan.** Cakupan T-12–T-14. Dokumentasikan cara menjalankan mock, memicu alert, dan melihat request yang diterima.
 
 Kebijakan usulan untuk versi pertama, mengikuti rekomendasi requirement:
 

@@ -1,4 +1,5 @@
 import { parseArgs } from 'node:util';
+import { sendBudgetAlerts, type BudgetAlertRun } from '../alerts/budget-alerts.js';
 import type { CostSource } from '../domain/money.js';
 import { createProjectResolver } from '../domain/projects.js';
 import { openDatabase } from '../db/database.js';
@@ -30,8 +31,16 @@ try {
       ...(sources ? { sources } : {}),
     });
     const succeeded = reports.every(report => report.status === 'succeeded');
-    console.log(JSON.stringify({ status: succeeded ? 'complete' : 'incomplete', reports }, null, 2));
-    if (!succeeded) process.exitCode = 1;
+    const allSourcesSelected = reports.length === allowed.size && reports.every(report => allowed.has(report.source));
+    let alerts: BudgetAlertRun | { status: 'skipped'; reason: string };
+    if (!succeeded) alerts = { status: 'skipped', reason: 'Import belum lengkap.' };
+    else if (!allSourcesSelected) alerts = { status: 'skipped', reason: 'Alert hanya dievaluasi setelah import lengkap keempat sumber.' };
+    else if (!config.webhookUrl) alerts = { status: 'skipped', reason: 'WEBHOOK_URL belum dikonfigurasi.' };
+    else alerts = await sendBudgetAlerts(db, { webhookUrl: config.webhookUrl, timeoutMs: config.webhookTimeoutMs });
+    const alertFailed = alerts.status === 'blocked'
+      || (alerts.status === 'completed' && alerts.results.some(result => result.status === 'failed'));
+    console.log(JSON.stringify({ status: !succeeded ? 'incomplete' : alertFailed ? 'alert_failed' : 'complete', reports, alerts }, null, 2));
+    if (!succeeded || alertFailed) process.exitCode = 1;
   } finally { db.close(); }
 } catch (error) {
   console.error(`Import gagal: ${error instanceof Error ? error.message : String(error)}`);

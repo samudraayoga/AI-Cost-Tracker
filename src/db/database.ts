@@ -82,6 +82,26 @@ const migrations = [{ version: 1, sql: `
     created_at TEXT NOT NULL
   ) STRICT;
   CREATE INDEX record_deduplications_canonical ON record_deduplications(canonical_transaction_id);
+` }, { version: 3, sql: `
+  CREATE TABLE budget_alert_attempts (
+    id INTEGER PRIMARY KEY,
+    policy_key TEXT NOT NULL,
+    project_code TEXT NOT NULL REFERENCES projects(code),
+    status TEXT NOT NULL CHECK(status IN ('sending','succeeded','failed')),
+    started_at TEXT NOT NULL,
+    finished_at TEXT,
+    threshold_percent TEXT NOT NULL,
+    spend_idr TEXT NOT NULL,
+    budget_idr TEXT NOT NULL,
+    usage_percent TEXT NOT NULL,
+    payload_json TEXT NOT NULL CHECK(json_valid(payload_json)),
+    response_status INTEGER CHECK(response_status IS NULL OR response_status BETWEEN 100 AND 599),
+    error TEXT
+  ) STRICT;
+  CREATE UNIQUE INDEX budget_alert_one_success_per_policy
+    ON budget_alert_attempts(project_code, policy_key) WHERE status = 'succeeded';
+  CREATE INDEX budget_alert_attempts_project_started
+    ON budget_alert_attempts(project_code, started_at);
 ` }];
 
 export function inTransaction<T>(db: Database, work: () => T): T {

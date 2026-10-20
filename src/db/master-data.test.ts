@@ -133,7 +133,7 @@ describe('SQLite master integration', () => {
     db = connect(dbPath);
     expect(masterSnapshot(db)).toEqual(before);
     expect(getRates(db)).toEqual(expectedRates);
-    expect(db.prepare('SELECT version FROM schema_migrations').all()).toEqual([{ version: 1 }, { version: 2 }]);
+    expect(db.prepare('SELECT version FROM schema_migrations').all()).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }]);
     expect(db.prepare('PRAGMA foreign_keys').get()).toEqual({ foreign_keys: 1 });
   });
 
