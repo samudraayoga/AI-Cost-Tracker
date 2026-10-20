@@ -69,12 +69,12 @@ Cakupan: FR-01–FR-05; NFR-02, NFR-05, NFR-06.
 
 Tujuan: tim operasional dapat memahami pengeluaran proyek dan kondisi budget dari data yang sudah diproses.
 
-- [ ] **S3-01 — Bangun agregasi proyek.** Hitung pengeluaran bersih, budget, dan persentase `pengeluaran bersih ÷ budget × 100%`. Gunakan transaksi setelah deduplikasi dan refund.
-- [ ] **S3-02 — Bangun agregasi vendor dan mingguan.** Sertakan biaya manual yang valid. Pengelompokan minggu menggunakan WIB dan aturan minggu yang terdokumentasi.
-- [ ] **S3-03 — Bangun ringkasan proyek.** Tampilkan seluruh proyek, nama/kode, budget IDR, pengeluaran IDR, dan persentase pemakaian. Tampilkan proyek tanpa transaksi serta persentase di atas 100% dengan benar.
-- [ ] **S3-04 — Bangun rincian vendor dan tren mingguan.** Gunakan tabel/grafik sederhana dengan label dan format Rupiah yang dipahami pengguna nonteknis.
-- [ ] **S3-05 — Tampilkan kondisi data.** Sediakan kondisi kosong dan keterangan jika import belum lengkap atau masih ada record belum terpetakan. Usulan tambahan ringan: sisa budget dan penanda di atas 80%.
-- [ ] **S3-06 — Verifikasi konsistensi ringkasan.** Tambahkan T-11 dan periksa tampilan dengan data normal, kosong, refund, serta proyek overbudget.
+- [x] **S3-01 — Bangun agregasi proyek.** Hitung pengeluaran bersih, budget, dan persentase `pengeluaran bersih ÷ budget × 100%`. Gunakan transaksi setelah deduplikasi dan refund.
+- [x] **S3-02 — Bangun agregasi vendor dan mingguan.** Sertakan biaya manual yang valid. Pengelompokan minggu menggunakan WIB dan aturan minggu yang terdokumentasi.
+- [x] **S3-03 — Bangun ringkasan proyek.** Tampilkan seluruh proyek, nama/kode, budget IDR, pengeluaran IDR, dan persentase pemakaian. Tampilkan proyek tanpa transaksi serta persentase di atas 100% dengan benar.
+- [x] **S3-04 — Bangun rincian vendor dan tren mingguan.** Gunakan tabel/grafik sederhana dengan label dan format Rupiah yang dipahami pengguna nonteknis.
+- [x] **S3-05 — Tampilkan kondisi data.** Sediakan kondisi kosong dan keterangan jika import belum lengkap atau masih ada record belum terpetakan. Usulan tambahan ringan: sisa budget dan penanda di atas 80%.
+- [x] **S3-06 — Verifikasi konsistensi ringkasan.** Tambahkan T-11 dan periksa tampilan dengan data normal, kosong, refund, serta proyek overbudget.
 
 Kriteria selesai:
 

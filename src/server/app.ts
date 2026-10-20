@@ -1,5 +1,6 @@
 import express from 'express';
 import type { Database } from '../db/database.js';
+import { getDashboardData } from '../db/dashboard.js';
 import { listProjects } from '../db/master-data.js';
 
 export function createApp(db: Database, webDirectory?: string) {
@@ -12,6 +13,10 @@ export function createApp(db: Database, webDirectory?: string) {
   app.get('/api/projects', (_request, response) => {
     response.set('Cache-Control', 'no-store');
     response.json({ projects: listProjects(db) });
+  });
+  app.get('/api/dashboard', (_request, response) => {
+    response.set('Cache-Control', 'no-store');
+    response.json(getDashboardData(db));
   });
   app.get('/api/status', (_request, response) => {
     response.set('Cache-Control', 'no-store');
