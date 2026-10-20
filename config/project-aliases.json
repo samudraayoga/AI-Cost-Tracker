@@ -1,0 +1,16 @@
+[
+  { "alias": "Greenbox", "projectCode": "GBX-01" },
+  { "alias": "Greenbox Garden", "projectCode": "GBX-01" },
+  { "alias": "greenbox benchmark", "projectCode": "GBX-01" },
+  { "alias": "Kopi Malam", "projectCode": "KMD-02" },
+  { "alias": "kopi malam drama", "projectCode": "KMD-02" },
+  { "alias": "Glowlab", "projectCode": "GLW-03" },
+  { "alias": "glowlab serum", "projectCode": "GLW-03" },
+  { "alias": "Senja", "projectCode": "SNJ-04" },
+  { "alias": "senja resort", "projectCode": "SNJ-04" },
+  { "alias": "Barakuda", "projectCode": "BRK-05" },
+  { "alias": "barakuda lookbook", "projectCode": "BRK-05" },
+  { "alias": "Internal", "projectCode": "INT-00" },
+  { "alias": "R&D", "projectCode": "INT-00" },
+  { "alias": "rnd", "projectCode": "INT-00" }
+]

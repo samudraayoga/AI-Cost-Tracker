@@ -1,0 +1,5 @@
+{
+  "credit_to_idr": 160,
+  "usd_to_idr": 16250,
+  "note": "Fixed internal rates. Use these for every record regardless of date."
+}
